@@ -13,3 +13,5 @@ Cкопируйте папку "packages" в C:\Users\USERNAME\Documents\houdini
 Установка плагина для Blender:
 Зайдите в настройки блендера во вкладку Add-ons, нажмите на стрелочку справа вверху и выберите Install from Disk. Выберите архив из папки packages/lee2key_tools/plugins/Blender
 Далее нужно установить хоткей на функцию lee2key_tools во вкладке с хоткеями. Я поставил на "4".
+
+Проверка синхронизации
