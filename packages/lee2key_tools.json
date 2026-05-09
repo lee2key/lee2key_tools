@@ -1,0 +1,4 @@
+{
+  "path": "$HOUDINI_PACKAGE_PATH/lee2key_tools",
+  "env": [{"HOUDINI_OTLSCAN_PATH": "$HOUDINI_PACKAGE_PATH/lee2key_tools/hdas"}]
+}
