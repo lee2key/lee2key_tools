@@ -1,7 +1,7 @@
 bl_info = {
-    "name": "lee2key tools",
+    "name": "lee2key_tools",
     "author": "Karen Lee",
-    "version": (0, 15),
+    "version": (0, 16),
     "blender": (3, 0, 0),
     "location": "",
     "description": "",
@@ -14,7 +14,184 @@ import bpy, bmesh, tempfile, os
 from mathutils import Vector
 from bpy.types import Operator, Panel, Menu
 
+# ── CONFIGURATION ────────────────────────────────────────────────
+TXT_FILE_PATH = r"C:\Users\lee2key\Desktop\Untitled.obj"
+# ─────────────────────────────────────────────────────────────────
+
+
+def parse_obj_txt(filepath: str):
+    """
+    Parse a text file.
+
+    Returns
+    -------
+    objects : list of dict
+        Each dict has:
+          'name'  : str
+          'verts' : list of (x, y, z) float tuples
+          'faces' : list of lists of 0-based vertex indices
+    """
+
+    objects = []
+    current = None
+
+    # Accumulators across the whole file (OBJ indices are global)
+    all_verts = []
+
+    def new_object(name="Imported"):
+        return {"name": name, "vert_start": len(all_verts), "face_defs": []}
+
+    with open(filepath, "r", encoding="utf-8") as fh:
+        for raw_line in fh:
+            line = raw_line.strip()
+            if not line or line.startswith("#"):
+                continue
+
+            parts = line.split()
+            token = parts[0]
+
+            if token == "o":
+                # Start a new object block
+                current = new_object(" ".join(parts[1:]) if len(parts) > 1 else "Object")
+                objects.append(current)
+
+            elif token == "v":
+                x, y, z = float(parts[1]), float(parts[2]), float(parts[3])
+                all_verts.append((x, y, z))
+                # If we haven't seen an 'o' line yet, create a default object
+                if current is None:
+                    current = new_object()
+                    objects.append(current)
+
+            elif token == "f":
+                if current is None:
+                    current = new_object()
+                    objects.append(current)
+                # Each face token may be  v  or  v/vt  or  v/vt/vn  or  v//vn
+                # OBJ indices are 1-based; negative indices count from end
+                face_indices = []
+                for tok in parts[1:]:
+                    v_idx_str = tok.split("/")[0]
+                    v_idx = int(v_idx_str)
+                    if v_idx < 0:
+                        v_idx = len(all_verts) + v_idx          # negative index
+                    else:
+                        v_idx -= 1                              # convert to 0-based
+                    face_indices.append(v_idx)
+                current["face_defs"].append(face_indices)
+
+            # vn / vt / s / mtllib / usemtl — intentionally ignored
+
+    # Build per-object local vertex list and remap face indices
+    result = []
+    for obj in objects:
+        vert_start = obj["vert_start"]
+        # Collect only the vertices that belong to this object.
+        # Because OBJ verts are global we determine the range from
+        # vert_start up to the next object's vert_start.
+        next_obj_idx = objects.index(obj) + 1
+        if next_obj_idx < len(objects):
+            vert_end = objects[next_obj_idx]["vert_start"]
+        else:
+            vert_end = len(all_verts)
+
+        local_verts = all_verts[vert_start:vert_end]
+
+        # Remap global face indices → local
+        local_faces = []
+        for face in obj["face_defs"]:
+            local_face = [idx - vert_start for idx in face]
+            # Safety: skip faces whose indices fall outside this object's vert range
+            if all(0 <= i < len(local_verts) for i in local_face):
+                local_faces.append(local_face)
+
+        result.append({
+            "name": obj["name"],
+            "verts": local_verts,
+            "faces": local_faces,
+        })
+
+    return result
+
+
+def build_mesh_object(name: str, verts, faces):
+    #Creates an object from vertex positions and face index lists.
+
+    # Create mesh data
+    mesh = bpy.data.meshes.new(name=name)
+
+    # Use bmesh for robust construction
+    bm = bmesh.new()
+
+    # Add vertices
+    bm_verts = [bm.verts.new(v) for v in verts]
+    bm.verts.index_update()
+
+    # Add faces (bmesh deduplicates edges automatically)
+    for face_indices in faces:
+        try:
+            face_verts = [bm_verts[i] for i in face_indices]
+            bm.faces.new(face_verts)
+        except ValueError as err:
+            # Duplicate face or degenerate polygon — skip silently
+            print(f"  [skip] face {face_indices}: {err}")
+
+    bm.to_mesh(mesh)
+    bm.free()
+
+    mesh.update()
+
+    # Create object and link to scene collection
+    obj = bpy.data.objects.new(name, mesh)
+    bpy.context.collection.objects.link(obj)
+
+    return obj
+
+
 def lk_import():
+    path = bpy.path.abspath(TXT_FILE_PATH)
+
+    if not os.path.isfile(path):
+        raise FileNotFoundError(f"File not found: {path}")
+
+    print(f"\n── Importing: {path}")
+    objects = parse_obj_txt(path)
+
+    if not objects:
+        print("No geometry found in file.")
+        return
+
+    created = []
+    for obj_data in objects:
+        name  = obj_data["name"]
+        verts = obj_data["verts"]
+        faces = obj_data["faces"]
+
+        print(f"  Object '{name}': {len(verts)} verts, {len(faces)} faces")
+
+        if not verts:
+            print(f"    (no vertices — skipping)")
+            continue
+
+        blender_obj = build_mesh_object(name, verts, faces)
+        created.append(blender_obj)
+        print(f"    → Created Blender object: '{blender_obj.name}'")
+
+    # Select all created objects and make the last one active
+    bpy.ops.object.select_all(action='DESELECT')
+    for obj in created:
+        obj.select_set(True)
+    if created:
+        bpy.context.view_layer.objects.active = created[-1]
+
+    print(f"\n── Done. {len(created)} object(s) added to the scene.\n")
+
+
+
+
+
+
+def lk_import_old():
     # Читаем txt-файл в папке TEMP
     txt_file = open(tempfile.gettempdir() + os.sep + "lk_Import-Export.txt", "r")
     lines = txt_file.readlines()
@@ -190,7 +367,7 @@ class lk_Import_Export(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        #print("Hello")
+        lk_import()
         self.report({'INFO'}, "Done")
         return {'FINISHED'}
 
@@ -201,7 +378,6 @@ def menu_func(self, context):
 
 def register():
     bpy.utils.register_class(lk_Import_Export)
-    # Add the menu item to the Object menu
     bpy.types.VIEW3D_MT_object.append(menu_func)
 
 def unregister():
