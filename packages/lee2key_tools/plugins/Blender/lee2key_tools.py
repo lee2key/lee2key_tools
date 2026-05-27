@@ -52,8 +52,7 @@ def lk_import():
 
     # Создаем фейсы
     for f in faces:
-        num = [int(f[0]), int(f[1]), int(f[2]), int(f[3])]
-        face_verts = [bm_verts[i] for i in num]
+        face_verts = [bm_verts[int(i)] for i in f]
         bm.faces.new(face_verts)
 
     bm.to_mesh(mesh)
