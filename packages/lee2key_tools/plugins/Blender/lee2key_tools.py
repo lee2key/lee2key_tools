@@ -63,6 +63,28 @@ def lk_import():
     obj = bpy.data.objects.new(name, mesh)
     bpy.context.collection.objects.link(obj)
 
+def lk_export():
+    # Get active object
+    obj = bpy.context.active_object
+
+    point_count = len(obj.data.vertices)
+    face_count = len(obj.data.polygons)
+
+    txt_file = open(tempfile.gettempdir() + os.sep + "lk_Import-Export.txt", "w")
+    txt_file.write("Points:" + str(point_count) + "\n")
+
+    # Write points
+    for vert in obj.data.vertices:
+        txt_file.write("p " + str(vert.co[0]) + " " + str(vert.co[2]) + " " + str(vert.co[1]*-1) + "\n")
+
+    # Write faces
+    txt_file.write("Faces:" + str(face_count) + "\n")
+    for poly in obj.data.polygons:
+        ppoint = ""
+        for idx in poly.vertices:
+            ppoint += "," + str(obj.data.vertices[idx].index)
+        txt_file.write("f " + ppoint[1:] + "\n")
+
 class lk_Import_Export(bpy.types.Operator):
     """Import or Export selected objects""" # Tooltip
     bl_idname = "object.lk_import_export"
@@ -70,8 +92,19 @@ class lk_Import_Export(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        lk_import()
-        self.report({'INFO'}, "Done")
+        sel = bpy.context.selected_objects
+
+        if len(sel) == 0:
+            lk_import()
+            self.report({'INFO'}, "Importing")
+
+        elif len(sel) == 1:
+            lk_export()
+            self.report({'INFO'}, "Exporting")
+
+        else:
+            self.report({'INFO'}, "Please select only one object")
+
         return {'FINISHED'}
 
 # Define the menu function
