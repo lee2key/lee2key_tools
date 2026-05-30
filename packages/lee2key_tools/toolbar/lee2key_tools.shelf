@@ -151,7 +151,7 @@ webbrowser.open("https://t.me/rendernotes/79")]]></script>
   <tool name="lk_Import_Export" label="Import-Export" icon="$HOUDINI_USER_PREF_DIR/packages/lee2key_tools/icons/Import_Export.svg">
     <script scriptType="python"><![CDATA[import sys, hou
 
-scripts_path = hou.expandString("C:/Users/lee2key/Documents/Yandex.Disk/Files/Development/lee2key_tools/packages/lee2key_tools")
+scripts_path = hou.expandString("$HOUDINI_USER_PREF_DIR/packages/lee2key_tools")
 if scripts_path not in sys.path:
     sys.path.append(scripts_path)
 

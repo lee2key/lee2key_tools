@@ -1,14 +1,17 @@
-import hou, tempfile, os
+import hou, tempfile, os #Importing Houdini and Windows TEMP folder modules
 
 def lk_import():
+    # Read the temporary text file
     txt_file = open(tempfile.gettempdir() + os.sep + "lk_Import-Export.txt", "r")
     lines = txt_file.readlines()
     txt_file.close()
 
+    # Extract the name for the Geometry node
     name = ""
     for line in lines:
         if line.startswith("Name:"):
-            name = line.strip().split(":")[1]
+            name = line.strip()[5:]
+            break
 
     # Create Geometry node
     hou.node('obj/').createNode("geo", name, run_init_scripts=False)
@@ -27,78 +30,33 @@ txt_file.close()
 node = hou.pwd()
 geo = hou.pwd().geometry()
 
-Points = []; Polygons = []; Normals = []; UV = [];
-count = 0
+points = []; faces = []; normals = []; uvs = []
 for line in lines:
-    if line.startswith("Points:"):
-        Points.append([int(line.strip().split(":")[1].strip()), count])
-    if line.startswith("Polygons:"):
-        Polygons.append([int(line.strip().split(":")[1].strip()), count])
-    if line.startswith("Normals:"):
-        Normals.append([int(line.strip().split(":")[1].strip()), count])
-    if line.startswith("UV:"):
-        if line.strip().split(":")[1] != "0":
-            UV.append([line.strip().split(":")[1], count])
-    count += 1
-
-mypoints = []
-for point in Points:
-    for i in range(point[1] + 1, point[1] + point[0] + 1):
-        x = lines[i].split()
-        if len(x) < 3:
-            continue
-        pos = [float(x[0]), float(x[1]), float(x[2])]
-        pt = geo.createPoint()
-        pt.setPosition(pos)
-        mypoints.append(pt)
+    if line.startswith("p"):
+        points.append(line.strip()[2:].split(" "))
         
-surfList = []
-pVertex = []
-ppVertex = {}
-for poly in Polygons:
-    count = 0
-    for i in range(poly[1] + 1, poly[1] + poly[0] + 1):
-    if ";;" not in lines[i]:
-        continue
-    
-    try:
-        parts = lines[i].split(";;")
-        if len(parts) < 3:
-        continue
-        
-        pts = []
-        surf = parts[1].strip()
-        surf = re.sub(r"[^a-zA-Z0-9]", lambda m: "_{:02x}".format(ord(m.group())), surf)
-        polytype = parts[2].strip()
-    
-        # Process point indices
-        for x in parts[0].strip().split(","):
-        pts.append(int(x.strip()))
-    
-        # Reorder points (your original logic)
-        pts.insert(len(pts), pts[0])
-        pts.pop(0)
-        pts = pts[::-1]
-    
-        # Create polygon
-        poly = geo.createPolygon()
-        for p in pts:
-        if p >= len(mypoints):
-            continue
-        ppVertex[str(count) + "," + str(p)] = poly.addVertex(mypoints[p])
-    
-        # Create surface attribute if needed
-        if surf not in surfList:
-        geo.addAttrib(hou.attribType.Prim, surf, 0)
-        surfList.append(surf)
-    
-        poly.setAttribValue(surf, 1)
-        count += 1
-    except Exception as e:
-        hou.ui.displayMessage("Error creating polygon at line {}: {}".format(i, str(e)))
-        continue
+    if line.startswith("f"):
+        faces.append(line.strip()[2:].split(","))
 
+    # if line.startswith("Normals:"):
+    #     normals.append([int(line.strip().split(":")[1].strip()), count])
+    # if line.startswith("UV:"):
+    #     if line.strip().split(":")[1] != "0":
+    #         UV.append([line.strip().split(":")[1], count])
 
+# Create points
+hou_points = []
+for p in points:
+    pos = [float(p[0]), float(p[1]), float(p[2])]
+    pt = geo.createPoint()
+    pt.setPosition(pos)
+    hou_points.append(pt)
+
+# Create faces                                
+for f in faces:
+    poly = geo.createPolygon()
+    for i in f:
+        poly.addVertex(hou_points[i])
 """})
 
     hou.node('obj/' + name + '/' + name).setHardLocked(1)
@@ -181,11 +139,9 @@ def execute():
     sel = hou.selectedNodes()
 
     if len(sel) == 0:
-        print("Importing...")
-        #lk_import()
+        lk_import()
 
     elif len(sel) == 1:
-        print("Exporting selected node...")
         lk_export()
 
     else:
