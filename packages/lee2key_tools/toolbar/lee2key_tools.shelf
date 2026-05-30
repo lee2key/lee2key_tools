@@ -17,7 +17,7 @@
     <memberTool name="lk_information"/>
   </toolshelf>
 
-  <tool name="lk_lastproject" label="Last Project" icon="PLASMA_App">
+  <tool name="lk_lastproject" label="Last Project" icon="$HOUDINI_USER_PREF_DIR/packages/lee2key_tools/icons/Last_Project.svg">
     <helpText><![CDATA["""Open the latest project you work on. The first line in the Recent Files"""]]></helpText>
     <script scriptType="python"><![CDATA[import hou, sys
 
@@ -29,7 +29,7 @@ from python import Last_Project as s
 s.execute()]]></script>
   </tool>
 
-  <tool name="lk_previewnode" label="Preview Node" icon="PLASMA_App">
+  <tool name="lk_previewnode" label="Preview Node" icon="$HOUDINI_USER_PREF_DIR/packages/lee2key_tools/icons/Preview_Node.svg">
     <helpText><![CDATA["""Connect selected Redshift node to the Output node to preview it. Works like 'Solo' button"""]]></helpText>
     <script scriptType="python"><![CDATA[import hou, sys
 
@@ -41,7 +41,7 @@ from python import Preview_Node as s
 s.execute()]]></script>
   </tool>
 
-  <tool name="lk_createnull" label="Create Null" icon="PLASMA_App">
+  <tool name="lk_createnull" label="Create Null" icon="$HOUDINI_USER_PREF_DIR/packages/lee2key_tools/icons/Create_Null.svg">
     <helpText><![CDATA["""Create Null node after selected node"""]]></helpText>
     <script scriptType="python"><![CDATA[import sys, hou
 
@@ -57,7 +57,7 @@ s.execute()]]></script>
     <script scriptType="python"><![CDATA[hou.node('obj/'+sel).createNode("convert", "ODConvertToPolygon")]]></script>
   </tool>
 
-  <tool name="lk_createsetup" label="Create Setup" icon="PLASMA_App">
+  <tool name="lk_createsetup" label="Create Setup" icon="$HOUDINI_USER_PREF_DIR/packages/lee2key_tools/icons/Create_Setup.svg">
     <helpText><![CDATA["""Create Camera, RS Dome Light, Material network and ROP network with Redshift render applied"""]]></helpText>
     <script scriptType="python"><![CDATA[import hou, sys
 
@@ -69,7 +69,7 @@ from python import Create_Setup as s
 s.execute()]]></script>
   </tool>
 
-  <tool name="lk_objectmerge" label="Object Merge" icon="PLASMA_App">
+  <tool name="lk_objectmerge" label="Object Merge" icon="$HOUDINI_USER_PREF_DIR/packages/lee2key_tools/icons/Object_Merge.svg">
     <helpText><![CDATA["""Create Object Merge node with a link to the copied node"""]]></helpText>
     <script scriptType="python"><![CDATA[import hou, sys
 
@@ -81,7 +81,7 @@ from python import Object_Merge as s
 s.execute()]]></script>
   </tool>
 
-  <tool name="lk_texturescale" label="Texture Scale" icon="PLASMA_App">
+  <tool name="lk_texturescale" label="Texture Scale" icon="$HOUDINI_USER_PREF_DIR/packages/lee2key_tools/icons/Scale_Textures.svg">
     <helpText><![CDATA["""Create RS Abs node to quickly scale textures"""]]></helpText>
     <script scriptType="python"><![CDATA[import hou, sys
 
@@ -93,7 +93,7 @@ from python import Texture_Scale as s
 s.execute()]]></script>
   </tool>
 
-  <tool name="lk_newmaterial" label="New Material" icon="PLASMA_App">
+  <tool name="lk_newmaterial" label="New Material" icon="$HOUDINI_USER_PREF_DIR/packages/lee2key_tools/icons/New_Material.svg">
     <helpText><![CDATA["""Create RS Material node"""]]></helpText>
     <script scriptType="python"><![CDATA[import sys, hou
 
@@ -142,13 +142,13 @@ else:
     rs_mat.setPosition(cursor_position)]]></script>
   </tool>
 
-  <tool name="lk_information" label="Information" icon="PLASMA_App">
+  <tool name="lk_information" label="Information" icon="$HOUDINI_USER_PREF_DIR/packages/lee2key_tools/icons/Donation.svg">
     <helpText><![CDATA["""Open Telegram channel @rendernotes"""]]></helpText>
     <script scriptType="python"><![CDATA[import webbrowser
 webbrowser.open("https://t.me/rendernotes/79")]]></script>
   </tool>
 
-  <tool name="lk_Import_Export" label="Import-Export" icon="PLASMA_App">
+  <tool name="lk_Import_Export" label="Import-Export" icon="$HOUDINI_USER_PREF_DIR/packages/lee2key_tools/icons/Import_Export.svg">
     <script scriptType="python"><![CDATA[import sys, hou
 
 scripts_path = hou.expandString("C:/Users/lee2key/Documents/Yandex.Disk/Files/Development/lee2key_tools/packages/lee2key_tools")
