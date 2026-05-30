@@ -46,7 +46,7 @@ def lk_import():
     # Создаем точки
     bm_verts = []
     for p in points:
-        pos = [float(p[0]), float(p[1]), float(p[2])]
+        pos = [float(p[0]), -float(p[2]), float(p[1])]
         bm_verts.append(bm.verts.new(pos))
     bm.verts.index_update()
 
@@ -71,6 +71,7 @@ def lk_export():
     face_count = len(obj.data.polygons)
 
     txt_file = open(tempfile.gettempdir() + os.sep + "lk_Import-Export.txt", "w")
+    txt_file.write("Name:" + obj.name + "\n")
     txt_file.write("Points:" + str(point_count) + "\n")
 
     # Write points

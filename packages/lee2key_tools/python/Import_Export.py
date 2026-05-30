@@ -56,7 +56,7 @@ for p in points:
 for f in faces:
     poly = geo.createPolygon()
     for i in f:
-        poly.addVertex(hou_points[i])
+        poly.addVertex(hou_points[int(i)])
 """})
 
     hou.node('obj/' + name + '/' + name).setHardLocked(1)
