@@ -53,7 +53,14 @@ def lk_import():
     # Создаем фейсы
     for f in faces:
         face_verts = [bm_verts[int(i)] for i in f]
-        bm.faces.new(face_verts)
+        # Skip degenerate faces (duplicate verts)
+        if len(face_verts) != len(set(v.index for v in face_verts)):
+            continue
+        
+        try:
+            bm.faces.new(face_verts)
+        except ValueError:
+            pass  # Skip any other duplicate/invalid faces
 
     bm.to_mesh(mesh)
     bm.free()

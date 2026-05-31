@@ -71,36 +71,32 @@ def lk_export():
     if len(selPath.split("/")) > 3:
         hou.node('obj/'+sel).createNode("python", "ExportScript")
         hou.node('obj/'+sel+'/ExportScript/').setParms({"python": '''
-# encoding: utf-8
-import tempfile, os, random, sys, re
+import tempfile, os
 
 filePath = tempfile.gettempdir() + os.sep + os.sep + "lk_Import-Export.txt"
 
 node = hou.pwd()
-geo = node.geometry()
-world_transform = node.worldTransform()
+geo = node.geometry()                                                        
 
+obj_node = node.parent() # Get the parent OBJ node
+world_xform = obj_node.worldTransform() # Get the world transform matrix                                                      
+                                                        
 if len(geo.points()) > 0:
     f = open(filePath, "w")
     f.write("Points:"+str(len(geo.points())) + "\\n")
     for point in geo.points():
-        #local_pos = point.position()
-        pos = point.position()
-        #pos = world_transform * hou.Vector4(local_pos[0], local_pos[1], local_pos[2], 1.0)
+        local_pos = point.position()
+        pos = local_pos * world_xform
         f.write("p " + str(pos[0]) + " " + str(pos[1]) + " " + str(pos[2]) + "\\n")
 
-    uvs = []
-    check = geo.findVertexAttrib("uv")
     f.write("Faces:"+str(len(geo.prims())) + "\\n")
     count = 0
     for (fid, prim) in enumerate(geo.prims()):
         ppoint = ""
         for point in reversed(prim.vertices()):
             ppoint += " " + str(hou.Vertex.point(point).number())
-            if check != None:
-                uvs.append(str(point.attribValue("uv")[0]) + " " + str(point.attribValue("uv")[1]) + ":PLY:" + str(count) + ":PNT:" + str(hou.Vertex.point(point).number()) + "\\n")
- 
-        transform = ppoint[1:].split(",")
+        
+        transform = ppoint[1:].split(" ")
         transform.insert(0, transform[-1])
         transform = transform[:-1]
         ppoint = " ".join(transform)
