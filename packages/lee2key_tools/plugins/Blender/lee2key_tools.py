@@ -30,7 +30,7 @@ def lk_import():
             points.append(line.strip()[2:].split(" "))
             
         if line.startswith("f"):
-            faces.append(line.strip()[2:].split(","))
+            faces.append(line.strip()[2:].split(" "))
 
     #    if line.startswith("n:"):
     #        normals.append(int(line.strip()[2:])
@@ -83,7 +83,7 @@ def lk_export():
     for poly in obj.data.polygons:
         ppoint = ""
         for idx in poly.vertices:
-            ppoint += "," + str(obj.data.vertices[idx].index)
+            ppoint += " " + str(obj.data.vertices[idx].index)
         txt_file.write("f " + ppoint[1:] + "\n")
 
 class lk_Import_Export(bpy.types.Operator):
