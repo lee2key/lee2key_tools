@@ -46,6 +46,7 @@ def melt_ngons(obj, ngon_translations):
 
 def import_geo():
     # Парсим txt-файл и получаем имя, точки и полигоны
+    file_path = tempfile.gettempdir() + os.sep + "lk_Import-Export.txt"
     name, points, faces = parse_txt_file(file_path)
     
     # Считаем количество полигонов (включая разбитые n-гоны)
@@ -101,7 +102,7 @@ def import_geo():
 
     ##melt_ngons(obj, ngon_translations)
 
-def export_geo():
+def export_geo(sel):
     # Создаем пустую сцену с выделенным объектом
     docTemp = c4d.documents.IsolateObjects(doc, sel)
     if docTemp == None:
@@ -166,15 +167,19 @@ def export_geo():
         txt_file.write(output)
         txt_file.close()
 
-sel = doc.GetActiveObjects(c4d.GETACTIVEOBJECTFLAGS_CHILDREN)
-file_path = tempfile.gettempdir() + os.sep + "lk_Import-Export.txt"
-if len(sel) == 0:
-    import_geo()
+def main():
+    sel = doc.GetActiveObjects(c4d.GETACTIVEOBJECTFLAGS_CHILDREN)
 
-elif len(sel) == 1:
-    export_geo()
+    if len(sel) == 0:
+        import_geo()
 
-else:
-    c4d.gui.MessageDialog("Please select only one object")
+    elif len(sel) == 1:
+        export_geo(sel)
 
-c4d.EventAdd() # Обновляем вьюпорт
+    else:
+        c4d.gui.MessageDialog("Please select only one object")
+
+    c4d.EventAdd() # Обновляем вьюпорт
+
+if __name__=='__main__':
+    main()
