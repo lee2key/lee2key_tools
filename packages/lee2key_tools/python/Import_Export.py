@@ -30,19 +30,12 @@ txt_file.close()
 node = hou.pwd()
 geo = hou.pwd().geometry()
 
-points = []; faces = []; normals = []; uvs = []
+points = []; faces = []
 for line in lines:
     if line.startswith("p"):
         points.append(line.strip()[2:].split(" "))
-        
     if line.startswith("f"):
         faces.append(line.strip()[2:].split(" "))
-
-    # if line.startswith("Normals:"):
-    #     normals.append([int(line.strip().split(":")[1].strip()), count])
-    # if line.startswith("UV:"):
-    #     if line.strip().split(":")[1] != "0":
-    #         UV.append([line.strip().split(":")[1], count])
 
 # Create points
 hou_points = []
@@ -114,7 +107,7 @@ if len(geo.points()) > 0:
         hou.node('obj/'+sel+'/ExportScript/').destroy()
         hou.node('obj/'+sel+'/lee2key_tools_convert/').destroy()
 
-def execute():
+def main():
     sel = hou.selectedNodes()
 
     if len(sel) == 0:
@@ -125,3 +118,6 @@ def execute():
 
     else:
         hou.ui.displayMessage("Please select only one node to export it or select nothing to import", title="lee2key_tools")
+
+if __name__ == "__main__":
+    main()

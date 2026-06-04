@@ -14,30 +14,32 @@ import bpy, bmesh, tempfile, os
 from mathutils import Vector
 from bpy.types import Operator, Panel, Menu
 
-def lk_import():
+def parse_txt_file(path):
     # Читаем txt-файл в папке TEMP
-    txt_file = open(tempfile.gettempdir() + os.sep + "lk_Import-Export.txt", "r")
+    txt_file = open(path, "r")
     lines = txt_file.readlines()
     txt_file.close()
 
-    # Выписываем имя объекта, позиции точек, полигонов, нормалей и UV
-    name = ""; points = []; faces = []; normals = []; uvs = []
+    # Выписываем имя объекта, точки и полигоны
+    name = ""; points = []; faces = []
     for line in lines:
         if line.startswith("Name:"):
             name = line.strip()[5:]
-            
+            break
+    
+    for line in lines:
         if line.startswith("p"):
-            points.append(line.strip()[2:].split(" "))
+            points.append([float(x) for x in line.strip()[2:].split(" ")])
             
         if line.startswith("f"):
-            faces.append(line.strip()[2:].split(" "))
+            faces.append([int(x) for x in line.strip()[2:].split(" ")])
+    
+    return name, points, faces
 
-    #    if line.startswith("n:"):
-    #        normals.append(int(line.strip()[2:])
-    #        
-    #    if line.startswith("uv:"):
-    #        if line.strip().split(":")[1] != "0":
-    #            uvs.append(line.strip().split(":")[1])
+def import_geo():
+    # Парсим txt-файл и получаем имя, точки и полигоны
+    file_path = tempfile.gettempdir() + os.sep + "lk_Import-Export.txt"
+    name, points, faces = parse_txt_file(file_path)
 
     # Создаем пустой объект
     mesh = bpy.data.meshes.new(name) # Create mesh data
@@ -70,7 +72,7 @@ def lk_import():
     obj = bpy.data.objects.new(name, mesh)
     bpy.context.collection.objects.link(obj)
 
-def lk_export():
+def exxport_geo():
     # Get active object
     obj = bpy.context.active_object
 
@@ -103,15 +105,15 @@ class lk_Import_Export(bpy.types.Operator):
         sel = bpy.context.selected_objects
 
         if len(sel) == 0:
-            lk_import()
+            import_geo()
             self.report({'INFO'}, "Importing")
 
         elif len(sel) == 1:
-            lk_export()
+            export_geo()
             self.report({'INFO'}, "Exporting")
 
         else:
-            self.report({'INFO'}, "Please select only one object")
+            self.report({'INFO'}, "Please select only one object to export it or select nothing to import")
 
         return {'FINISHED'}
 

@@ -177,7 +177,7 @@ def main():
         export_geo(sel)
 
     else:
-        c4d.gui.MessageDialog("Please select only one object")
+        c4d.gui.MessageDialog("Please select only one object to export it or select nothing to import")
 
     c4d.EventAdd() # Обновляем вьюпорт
 

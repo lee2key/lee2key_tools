@@ -156,6 +156,6 @@ if scripts_path not in sys.path:
     sys.path.append(scripts_path)
 
 from python import Import_Export as s
-s.execute()]]></script>
+s.main()]]></script>
   </tool>
 </shelfDocument>
