@@ -10,23 +10,30 @@ bl_info = {
     "category": "Object",
 }
 
-import bpy, bmesh, tempfile, os
+import bpy, bmesh
 from mathutils import Vector
 from bpy.types import Operator, Panel, Menu
 
-def parse_txt_file(path):
-    # Читаем txt-файл в папке TEMP
-    txt_file = open(path, "r")
+def get_txt_file_path():
+    # Получаем путь к txt-файлу в папке TEMP
+    import tempfile, os
+    file_path = os.path.join(tempfile.gettempdir(), "lk_Import-Export.txt")
+    return file_path
+
+def parse_txt_file(file_path):
+    # Читаем txt-файл
+    txt_file = open(file_path, "r")
     lines = txt_file.readlines()
     txt_file.close()
 
-    # Выписываем имя объекта, точки и полигоны
+    # Выписываем имя объекта
     name = ""; points = []; faces = []
     for line in lines:
         if line.startswith("Name:"):
             name = line.strip()[5:]
             break
     
+    # Выписываем точки и полигоны
     for line in lines:
         if line.startswith("p"):
             points.append([float(x) for x in line.strip()[2:].split(" ")])
@@ -37,13 +44,13 @@ def parse_txt_file(path):
     return name, points, faces
 
 def import_geo():
-    # Парсим txt-файл и получаем имя, точки и полигоны
-    file_path = tempfile.gettempdir() + os.sep + "lk_Import-Export.txt"
+    # Получаем путь к txt-файлу и парсим его
+    file_path = get_txt_file_path()
     name, points, faces = parse_txt_file(file_path)
 
     # Создаем пустой объект
-    mesh = bpy.data.meshes.new(name) # Create mesh data
-    bm = bmesh.new() # Use bmesh for robust construction
+    mesh = bpy.data.meshes.new(name)
+    bm = bmesh.new()
 
     # Создаем точки
     bm_verts = []
@@ -72,22 +79,27 @@ def import_geo():
     obj = bpy.data.objects.new(name, mesh)
     bpy.context.collection.objects.link(obj)
 
-def exxport_geo():
-    # Get active object
+def export_geo():
+    # Получаем выделенный объект
     obj = bpy.context.active_object
 
+    # Считаем количество точек и фейсов
     point_count = len(obj.data.vertices)
     face_count = len(obj.data.polygons)
 
-    txt_file = open(tempfile.gettempdir() + os.sep + "lk_Import-Export.txt", "w")
-    txt_file.write("Name:" + obj.name + "\n")
-    txt_file.write("Points:" + str(point_count) + "\n")
+    # Получаем путь к txt-файлу и открываем его для записи
+    file_path = get_txt_file_path()
+    txt_file = open(file_path, "w")
 
-    # Write points
+    # Записываем имя объекта в txt-файл
+    txt_file.write("Name:" + obj.name + "\n")
+
+    # Записываем точки в txt-файл
+    txt_file.write("Points:" + str(point_count) + "\n")
     for vert in obj.data.vertices:
         txt_file.write("p " + str(vert.co[0]) + " " + str(vert.co[2]) + " " + str(vert.co[1]*-1) + "\n")
 
-    # Write faces
+    # Записываем фейсы в txt-файл
     txt_file.write("Faces:" + str(face_count) + "\n")
     for poly in obj.data.polygons:
         ppoint = ""
@@ -106,11 +118,11 @@ class lk_Import_Export(bpy.types.Operator):
 
         if len(sel) == 0:
             import_geo()
-            self.report({'INFO'}, "Importing")
+            self.report({'INFO'}, "Import done")
 
         elif len(sel) == 1:
             export_geo()
-            self.report({'INFO'}, "Exporting")
+            self.report({'INFO'}, "Export done")
 
         else:
             self.report({'INFO'}, "Please select only one object to export it or select nothing to import")
