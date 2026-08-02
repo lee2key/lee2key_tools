@@ -1,17 +1,36 @@
-import hou, tempfile, os #Importing Houdini and Windows TEMP folder modules
+import hou
 
-def lk_import():
-    # Read the temporary text file
-    txt_file = open(tempfile.gettempdir() + os.sep + "lk_Import-Export.txt", "r")
+# Получаем путь к txt-файлу в папке TEMP
+def get_txt_file_path():
+    import tempfile, os
+    file_path = os.path.join(tempfile.gettempdir(), "lk_Import-Export.txt")
+    return file_path
+
+# Читаем файл и выписываем имя объекта, точки и полигоны
+def parse_txt_file(file_path):
+    txt_file = open(file_path, "r")
     lines = txt_file.readlines()
     txt_file.close()
 
-    # Extract the name for the Geometry node
-    name = ""
+    name = ""; points = []; faces = []
     for line in lines:
         if line.startswith("Name:"):
             name = line.strip()[5:]
             break
+
+    for line in lines:
+        if line.startswith("p"):
+            points.append([float(x) for x in line.strip()[2:].split(" ")])
+            
+        if line.startswith("f"):
+            faces.append([int(x) for x in line.strip()[2:].split(" ")])
+    
+    return name, points, faces
+
+def lk_import():
+    # Получаем путь к txt-файлу и парсим его
+    file_path = get_txt_file_path()
+    name, points, faces = parse_txt_file(file_path)
 
     # Create Geometry node
     hou.node('obj/').createNode("geo", name, run_init_scripts=False)
