@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mainMenu>
+  <menuBar>
+    <subMenu id="lee2key_tools_menu">
+      <label>lee2key_tools</label>
+      <insertBefore>help_menu</insertBefore>
+
+      <!-- Find scripts through HOUDINI_PATH, regardless of the install location.
+           run_path loads their functions without running the __main__ block. -->
+      <scriptItem id="h.lee2key_tools.last_project">
+        <label>Last Project</label>
+        <scriptCode><![CDATA[
+import hou
+import runpy
+runpy.run_path(hou.findFile("python/Last_Project.py"))["execute"]()
+]]></scriptCode>
+      </scriptItem>
+      <scriptItem id="h.lee2key_tools.import_export">
+        <label>Import-Export</label>
+        <scriptCode><![CDATA[
+import hou
+import runpy
+runpy.run_path(hou.findFile("python/Import_Export.py"))["main"]()
+]]></scriptCode>
+      </scriptItem>
+      <scriptItem id="h.lee2key_tools.create_null">
+        <label>Create Null</label>
+        <scriptCode><![CDATA[
+import hou
+import runpy
+runpy.run_path(hou.findFile("python/Create_Null.py"))["execute"]()
+]]></scriptCode>
+      </scriptItem>
+      <scriptItem id="h.lee2key_tools.object_merge">
+        <label>Object Merge</label>
+        <scriptCode><![CDATA[
+import hou
+import runpy
+runpy.run_path(hou.findFile("python/Object_Merge.py"))["execute"]()
+]]></scriptCode>
+      </scriptItem>
+      <subMenu id="lee2key_tools_redshift_menu">
+        <label>Redshift</label>
+        <scriptItem id="h.lee2key_tools.create_setup">
+          <label>Create Setup</label>
+          <scriptCode><![CDATA[
+import hou
+import runpy
+runpy.run_path(hou.findFile("python/Create_Setup.py"))["execute"]()
+]]></scriptCode>
+        </scriptItem>
+        <scriptItem id="h.lee2key_tools.new_material">
+          <label>New Material</label>
+          <scriptCode><![CDATA[
+import hou
+import runpy
+runpy.run_path(hou.findFile("python/New_Material.py"))["execute"]()
+]]></scriptCode>
+        </scriptItem>
+        <scriptItem id="h.lee2key_tools.preview_node">
+          <label>Preview Node</label>
+          <scriptCode><![CDATA[
+import hou
+import runpy
+runpy.run_path(hou.findFile("python/Preview_Node.py"))["execute"]()
+]]></scriptCode>
+        </scriptItem>
+        <scriptItem id="h.lee2key_tools.texture_scale">
+          <label>Texture Scale</label>
+          <scriptCode><![CDATA[
+import hou
+import runpy
+runpy.run_path(hou.findFile("python/Texture_Scale.py"))["execute"]()
+]]></scriptCode>
+        </scriptItem>
+      </subMenu>
+      <scriptItem id="h.lee2key_tools.information">
+        <label>Information</label>
+        <scriptCode><![CDATA[
+import webbrowser
+webbrowser.open("https://t.me/rendernotes/79")
+]]></scriptCode>
+      </scriptItem>
+    </subMenu>
+  </menuBar>
+</mainMenu>
